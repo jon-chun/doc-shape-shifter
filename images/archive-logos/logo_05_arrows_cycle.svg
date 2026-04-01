@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="white"/>
+
+  <!-- Curved arrows forming clockwise cycle -->
+  <!-- Arrow: top -> bottom-right (blue to green) -->
+  <path d="M 300,140 C 380,160 420,260 370,340" fill="none" stroke="#1E88E5" stroke-width="8" stroke-linecap="round"/>
+  <polygon points="370,340 385,325 360,318" fill="#1E88E5"/>
+
+  <!-- Arrow: bottom-right -> bottom-left (green to orange) -->
+  <path d="M 330,400 C 290,440 190,440 150,400" fill="none" stroke="#43A047" stroke-width="8" stroke-linecap="round"/>
+  <polygon points="150,400 168,412 165,388" fill="#43A047"/>
+
+  <!-- Arrow: bottom-left -> top (orange to blue) -->
+  <path d="M 110,340 C 70,260 100,170 180,140" fill="none" stroke="#FB8C00" stroke-width="8" stroke-linecap="round"/>
+  <polygon points="180,140 163,155 182,163" fill="#FB8C00"/>
+
+  <!-- Top document - Text/Document (blue) -->
+  <g transform="translate(208, 70)">
+    <rect x="0" y="0" width="96" height="120" rx="8" fill="#1E88E5" stroke="#222" stroke-width="4"/>
+    <!-- Text lines -->
+    <line x1="16" y1="28" x2="80" y2="28" stroke="white" stroke-width="4" stroke-linecap="round"/>
+    <line x1="16" y1="46" x2="72" y2="46" stroke="white" stroke-width="4" stroke-linecap="round"/>
+    <line x1="16" y1="64" x2="76" y2="64" stroke="white" stroke-width="4" stroke-linecap="round"/>
+    <line x1="16" y1="82" x2="56" y2="82" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- Bottom-right document - Spreadsheet/Grid (green) -->
+  <g transform="translate(330, 310)">
+    <rect x="0" y="0" width="96" height="120" rx="8" fill="#43A047" stroke="#222" stroke-width="4"/>
+    <!-- Grid -->
+    <line x1="16" y1="28" x2="80" y2="28" stroke="white" stroke-width="3"/>
+    <line x1="16" y1="50" x2="80" y2="50" stroke="white" stroke-width="3"/>
+    <line x1="16" y1="72" x2="80" y2="72" stroke="white" stroke-width="3"/>
+    <line x1="16" y1="94" x2="80" y2="94" stroke="white" stroke-width="3"/>
+    <line x1="38" y1="16" x2="38" y2="106" stroke="white" stroke-width="3"/>
+    <line x1="60" y1="16" x2="60" y2="106" stroke="white" stroke-width="3"/>
+  </g>
+
+  <!-- Bottom-left document - Markup/Code (orange) -->
+  <g transform="translate(86, 310)">
+    <rect x="0" y="0" width="96" height="120" rx="8" fill="#FB8C00" stroke="#222" stroke-width="4"/>
+    <!-- Angle brackets for markup -->
+    <polyline points="22,36 12,54 22,72" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="74,36 84,54 74,72" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Slash -->
+    <line x1="54" y1="32" x2="42" y2="76" stroke="white" stroke-width="4" stroke-linecap="round"/>
+    <!-- Code line below -->
+    <line x1="20" y1="94" x2="60" y2="94" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

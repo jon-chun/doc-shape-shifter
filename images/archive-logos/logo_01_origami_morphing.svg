@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="white"/>
+
+  <!-- Document/paper left half with lines -->
+  <g transform="translate(100, 120)">
+    <!-- Flat paper sheet base -->
+    <polygon points="0,60 156,0 156,280 0,340" fill="#F5F0E8" stroke="#2D2B55" stroke-width="4"/>
+    <!-- Document lines on left half -->
+    <line x1="20" y1="90" x2="80" y2="70" stroke="#2D2B55" stroke-width="3" opacity="0.3"/>
+    <line x1="20" y1="120" x2="90" y2="97" stroke="#2D2B55" stroke-width="3" opacity="0.3"/>
+    <line x1="20" y1="150" x2="85" y2="128" stroke="#2D2B55" stroke-width="3" opacity="0.3"/>
+    <line x1="20" y1="180" x2="70" y2="162" stroke="#2D2B55" stroke-width="3" opacity="0.2"/>
+    <!-- PDF watermark -->
+    <text x="40" y="260" font-family="Arial, sans-serif" font-weight="bold" font-size="28" fill="#2D2B55" opacity="0.15">PDF</text>
+  </g>
+
+  <!-- Origami crane taking shape on right -->
+  <g transform="translate(256, 100)">
+    <!-- Crane body - geometric facets -->
+    <polygon points="0,140 80,60 156,140 80,180" fill="#E8960C" stroke="#2D2B55" stroke-width="4" stroke-linejoin="round"/>
+    <!-- Crane wing top -->
+    <polygon points="80,60 40,0 140,30 80,60" fill="#F0AB2E" stroke="#2D2B55" stroke-width="4" stroke-linejoin="round"/>
+    <!-- Crane wing back -->
+    <polygon points="80,60 160,10 156,140" fill="#D4850A" stroke="#2D2B55" stroke-width="4" stroke-linejoin="round"/>
+    <!-- Crane neck -->
+    <polygon points="0,140 -30,80 20,100" fill="#E8960C" stroke="#2D2B55" stroke-width="4" stroke-linejoin="round"/>
+    <!-- Crane head -->
+    <polygon points="-30,80 -60,65 -20,60" fill="#F0AB2E" stroke="#2D2B55" stroke-width="3" stroke-linejoin="round"/>
+    <!-- Crane tail -->
+    <polygon points="156,140 190,120 170,160" fill="#D4850A" stroke="#2D2B55" stroke-width="3" stroke-linejoin="round"/>
+    <!-- Fold lines -->
+    <line x1="80" y1="60" x2="80" y2="180" stroke="#2D2B55" stroke-width="2" opacity="0.3"/>
+    <line x1="0" y1="140" x2="156" y2="140" stroke="#2D2B55" stroke-width="2" opacity="0.2"/>
+  </g>
+
+  <!-- Transformation motion lines -->
+  <g stroke="#2D2B55" stroke-width="2" opacity="0.2">
+    <line x1="220" y1="200" x2="250" y2="200"/>
+    <line x1="215" y1="220" x2="255" y2="220"/>
+    <line x1="218" y1="240" x2="252" y2="240"/>
+  </g>
+</svg>

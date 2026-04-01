@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="white"/>
+
+  <!-- Input document (left side) -->
+  <g transform="translate(30, 190)">
+    <rect x="0" y="0" width="70" height="90" rx="4" fill="white" stroke="#222" stroke-width="4"/>
+    <!-- Corner fold -->
+    <polygon points="50,0 70,0 70,20" fill="#E0E0E0" stroke="#222" stroke-width="2"/>
+    <line x1="50" y1="0" x2="50" y2="20" stroke="#222" stroke-width="2"/>
+    <line x1="50" y1="20" x2="70" y2="20" stroke="#222" stroke-width="2"/>
+    <!-- Lines -->
+    <line x1="10" y1="35" x2="42" y2="35" stroke="#999" stroke-width="3"/>
+    <line x1="10" y1="48" x2="50" y2="48" stroke="#999" stroke-width="3"/>
+    <line x1="10" y1="61" x2="38" y2="61" stroke="#999" stroke-width="3"/>
+    <line x1="10" y1="74" x2="45" y2="74" stroke="#999" stroke-width="3"/>
+  </g>
+
+  <!-- Input beam (white/light) -->
+  <line x1="105" y1="235" x2="185" y2="256" stroke="#888" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Prism -->
+  <polygon points="256,110 186,380 326,380" fill="none" stroke="#222" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Prism fill with subtle tint -->
+  <polygon points="256,115 190,376 322,376" fill="#F0F4FF" opacity="0.7"/>
+  <!-- Internal refraction line hint -->
+  <line x1="220" y1="260" x2="310" y2="280" stroke="#CCD" stroke-width="2" opacity="0.5"/>
+
+  <!-- Output beams fanning out -->
+  <!-- Red beam -> page icon -->
+  <line x1="310" y1="250" x2="420" y2="140" stroke="#F44336" stroke-width="5" stroke-linecap="round"/>
+  <!-- Blue beam -> spreadsheet -->
+  <line x1="315" y1="270" x2="430" y2="210" stroke="#2196F3" stroke-width="5" stroke-linecap="round"/>
+  <!-- Green beam -> code brackets -->
+  <line x1="318" y1="290" x2="435" y2="280" stroke="#4CAF50" stroke-width="5" stroke-linecap="round"/>
+  <!-- Purple beam -> book -->
+  <line x1="315" y1="310" x2="430" y2="345" stroke="#9C27B0" stroke-width="5" stroke-linecap="round"/>
+  <!-- Orange beam -> plain rect -->
+  <line x1="310" y1="330" x2="420" y2="410" stroke="#FF9800" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Tiny output format icons -->
+  <!-- Red: page/PDF -->
+  <rect x="420" y="120" width="28" height="36" rx="3" fill="#F44336" stroke="#222" stroke-width="3"/>
+  <line x1="426" y1="132" x2="442" y2="132" stroke="white" stroke-width="2"/>
+  <line x1="426" y1="140" x2="440" y2="140" stroke="white" stroke-width="2"/>
+
+  <!-- Blue: spreadsheet grid -->
+  <rect x="430" y="193" width="28" height="36" rx="3" fill="#2196F3" stroke="#222" stroke-width="3"/>
+  <line x1="444" y1="198" x2="444" y2="224" stroke="white" stroke-width="2"/>
+  <line x1="435" y1="207" x2="453" y2="207" stroke="white" stroke-width="2"/>
+  <line x1="435" y1="216" x2="453" y2="216" stroke="white" stroke-width="2"/>
+
+  <!-- Green: code brackets -->
+  <rect x="435" y="263" width="28" height="36" rx="3" fill="#4CAF50" stroke="#222" stroke-width="3"/>
+  <polyline points="441,275 437,281 441,287" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="457,275 461,281 457,287" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Purple: book -->
+  <rect x="430" y="328" width="28" height="36" rx="3" fill="#9C27B0" stroke="#222" stroke-width="3"/>
+  <line x1="444" y1="333" x2="444" y2="359" stroke="white" stroke-width="2"/>
+  <path d="M 436,348 C 438,342 442,340 444,340" fill="none" stroke="white" stroke-width="2"/>
+  <path d="M 452,348 C 450,342 446,340 444,340" fill="none" stroke="white" stroke-width="2"/>
+
+  <!-- Orange: plain rectangle -->
+  <rect x="420" y="393" width="28" height="36" rx="3" fill="#FF9800" stroke="#222" stroke-width="3"/>
+  <line x1="426" y1="405" x2="442" y2="405" stroke="white" stroke-width="2"/>
+  <line x1="426" y1="413" x2="440" y2="413" stroke="white" stroke-width="2"/>
+  <line x1="426" y1="421" x2="436" y2="421" stroke="white" stroke-width="2"/>
+</svg>
