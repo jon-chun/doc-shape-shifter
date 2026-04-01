@@ -54,6 +54,7 @@ dev = [
 ]
 
 [project.scripts]
+doc-shape-shifter = "doc_shape_shifter.cli:main"
 dss = "doc_shape_shifter.cli:main"
 
 [build-system]

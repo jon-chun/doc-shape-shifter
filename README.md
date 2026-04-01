@@ -158,17 +158,20 @@ uv sync --extra dev
 ### 4. Verify The Toolchain
 
 ```bash
-uv run doc-shape-shifter doctor
+uv run dss --list-backends
 ```
 
-Expected categories:
+Expected backends:
 
-- `pandoc`
-- `docling`
-- `pymupdf4llm`
-- `tabula`
-- `mathpix`
-- `pdf_engine`
+- `builtin` — always available (Python stdlib)
+- `pandoc` — requires `pandoc` on PATH
+- `pymupdf` — installed via core dependencies
+- `docling` — optional (`pip install docling`)
+- `markitdown` — optional (`pip install 'markitdown[all]'`)
+- `tabula` — optional (requires `tabula-py` + Java)
+- `mathpix` — optional (requires API credentials)
+
+The long-form command `uv run doc-shape-shifter --list-backends` also works.
 
 If `mathpix` shows unavailable, that is normal unless you intentionally configured it.
 
@@ -197,76 +200,66 @@ The router only checks availability. If PDF generation fails, inspect the Pandoc
 
 ## Commands
 
-### Show Installed Capability Status
+### Show Installed Backends
 
 ```bash
-uv run doc-shape-shifter doctor
+uv run dss --list-backends
 ```
 
 Use this first whenever something fails.
 
-### Preview Routing Without Writing Output
+### Show Supported Conversion Pairs
 
 ```bash
-uv run doc-shape-shifter plan input.pdf output.docx
-uv run doc-shape-shifter plan input.docx output.md
+uv run dss --list-formats
 ```
 
-This prints the ranked plans and the engines selected for each step.
+Lists all source/target format pairs and which backends handle each.
 
 ### Convert A File
 
 ```bash
-uv run doc-shape-shifter convert input.pdf output.md
-uv run doc-shape-shifter convert input.docx output.html
-uv run doc-shape-shifter convert input.md output.pdf
-uv run doc-shape-shifter convert input.pdf output.csv
+uv run dss input.pdf output.md
+uv run dss input.docx output.html
+uv run dss input.md output.pdf
+uv run dss input.csv --to json
 ```
 
-### Force OCR-Oriented PDF Handling
+### Force A Specific Backend
 
 ```bash
-uv run doc-shape-shifter convert scan.pdf scan.md --force-ocr
+uv run dss input.pdf output.md -b pymupdf
+uv run dss input.docx --to md -b pandoc
 ```
 
-### Override The Planner Preference
+### Disable Fallback
 
 ```bash
-uv run doc-shape-shifter plan input.pdf output.docx --prefer-engine docling
-uv run doc-shape-shifter convert input.pdf output.docx --prefer-engine pymupdf4llm
+uv run dss input.pdf output.md --no-fallback
 ```
 
-This does not hard-lock the route. It boosts the preferred engine during ranking.
+Only tries the first backend in the chain; does not fall through on failure.
+
+### Verbose Output
+
+```bash
+uv run dss input.pdf output.md -v      # INFO level
+uv run dss input.pdf output.md -vv     # DEBUG level
+```
 
 ## How To Interpret Output
 
-### `doctor`
+### `--list-backends`
 
-Example meaning:
+Shows each backend name, whether it is installed (`Yes`/`No`), and its version string.
 
-- `available=yes` means the engine is importable or executable right now.
-- `available=no` means the engine cannot be used in routing.
-- `pdf_engine` indicates whether Pandoc can render PDFs on this machine.
+### `--list-formats`
 
-### `plan`
+Shows every defined conversion pair and the ordered backend chain (best first, fallbacks after).
 
-The `plan` output shows:
+### Conversion Output
 
-- route name
-- route score
-- extraction step
-- rendering step
-
-Higher scores are preferred. If the first route fails during execution, the converter automatically tries lower-ranked routes.
-
-### `convert`
-
-The `convert` command prints:
-
-- the selected route
-- the final output path
-
-If conversion fails, the tool aggregates route failures so you can see which engine broke and why.
+On success, prints the source/target formats, which backend was used, elapsed time, and output file size. On failure, all backend errors are aggregated so you can see which engine broke and why.
 
 ## Routing Rules In The MVP
 
