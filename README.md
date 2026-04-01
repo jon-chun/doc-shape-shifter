@@ -294,7 +294,7 @@ uv run ruff check
 Run as a module:
 
 ```bash
-uv run python -m doc_shape_shifter doctor
+uv run python -m doc_shape_shifter --list-backends
 ```
 
 ## Packaging And Release Archive
