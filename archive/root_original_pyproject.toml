@@ -1,0 +1,54 @@
+[project]
+name = "doc-shape-shifter"
+version = "0.1.0"
+description = "Local-first document conversion router that chooses the best available engine per format pair."
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+keywords = ["documents", "conversion", "ocr", "pandoc", "docling", "pymupdf"]
+dependencies = [
+  "docling",
+  "pymupdf4llm",
+  "requests",
+  "tabula-py",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.6",
+]
+
+[project.scripts]
+doc-shape-shifter = "doc_shape_shifter.cli:main"
+dss = "doc_shape_shifter.cli:main"
+
+[project.urls]
+Repository = "https://github.com/jon-chun/doc-shape-shifter"
+Documentation = "https://github.com/jon-chun/doc-shape-shifter/tree/main/docs"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/doc_shape_shifter"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/README.md",
+  "/docs",
+  "/scripts",
+  "/src",
+  "/tests",
+  "/pyproject.toml",
+  "/uv.lock",
+  "/.env.example",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

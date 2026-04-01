@@ -190,16 +190,6 @@ cython_debug/
 #  you could uncomment the following to ignore the entire vscode folder
 # .vscode/
 
-# Project runtime
-logs/*.jsonl
-logs/*.log
-!logs/.gitkeep
-output/*
-!output/.gitkeep
-
-# Models (downloaded at runtime)
-models/
-
 # Ruff stuff:
 .ruff_cache/
 
