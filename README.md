@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="images/logo_doc-shape-shifter_cycle.png" alt="doc-shape-shifter logo" width="200">
+</p>
+
 # doc-shape-shifter
 
 `doc-shape-shifter` is a local-first document conversion toolkit for macOS that routes each conversion through the best available engine instead of forcing one tool to handle every format pair.
