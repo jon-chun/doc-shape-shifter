@@ -18,6 +18,8 @@ console = Console(stderr=True)
               help="Force a specific backend (pandoc, docling, pymupdf, markitdown, etc.)")
 @click.option("--no-fallback", is_flag=True, default=False,
               help="Don't try alternate backends on failure")
+@click.option("--no-progress", is_flag=True, default=False,
+              help="Disable progress bar during conversion")
 @click.option("--list-backends", is_flag=True, default=False,
               help="List all backends with availability status")
 @click.option("--list-formats", is_flag=True, default=False,
@@ -31,6 +33,7 @@ def main(
     target_format: str | None,
     backend: str | None,
     no_fallback: bool,
+    no_progress: bool,
     list_backends: bool,
     list_formats: bool,
     verbose: int,
@@ -86,14 +89,20 @@ def main(
         target_format=target_format,
         backend=backend,
         fallback=not no_fallback,
+        show_progress=not no_progress,
     )
 
     if result.success:
         size_str = _format_size(result.file_size_bytes) if result.file_size_bytes else "?"
+        eta_info = ""
+        if result.estimated_seconds is not None:
+            from .utils.estimator import format_eta
+
+            eta_info = f", est {format_eta(result.estimated_seconds)}"
         console.print(
             f"[green]Success:[/] {result.source_format} -> {result.target_format} "
             f"via [bold]{result.backend_name}[/] "
-            f"({result.duration_seconds:.2f}s, {size_str})",
+            f"({result.duration_seconds:.2f}s{eta_info}, {size_str})",
             highlight=False,
         )
         console.print(f"[bold]Output:[/] {result.output_path}", highlight=False)

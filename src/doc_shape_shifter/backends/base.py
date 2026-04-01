@@ -17,6 +17,7 @@ class ConversionResult:
     target_format: str
     error_message: str | None = None
     file_size_bytes: int | None = None
+    estimated_seconds: float | None = None
     warnings: list[str] = field(default_factory=list)
 
     def __str__(self) -> str:

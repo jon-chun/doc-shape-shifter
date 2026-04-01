@@ -1,5 +1,7 @@
 """Main orchestration module: detect -> route -> convert with fallback chain."""
 
+from __future__ import annotations
+
 import logging
 import time
 from pathlib import Path
@@ -8,6 +10,7 @@ from .backends import get_backend
 from .backends.base import ConversionResult
 from .detector import detect_format
 from .router import UnsupportedConversionError, get_backend_chain
+from .utils.estimator import estimate_for_file, format_eta
 from .utils.formats import FORMAT_EXTENSION, DocFormat, format_from_string
 
 logger = logging.getLogger("doc_shape_shifter.converter")
@@ -19,6 +22,7 @@ def convert(
     target_format: str | None = None,
     backend: str | None = None,
     fallback: bool = True,
+    show_progress: bool = False,
 ) -> ConversionResult:
     """Convert a document from one format to another.
 
@@ -26,9 +30,10 @@ def convert(
         1. Detect source format from input file
         2. Determine target format (from output_path extension or target_format arg)
         3. Look up backend chain from the conversion matrix
-        4. Execute first available backend (or forced backend if specified)
-        5. On failure, try next backend in chain if fallback=True
-        6. Return ConversionResult with full metadata
+        4. Estimate conversion time and show progress bar (if show_progress=True)
+        5. Execute first available backend (or forced backend if specified)
+        6. On failure, try next backend in chain if fallback=True
+        7. Return ConversionResult with full metadata
     """
     overall_start = time.time()
     input_path = Path(input_path)
@@ -49,13 +54,13 @@ def convert(
         output_path = input_path.with_suffix(ext)
     output_path = Path(output_path)
 
-    # Create output directory if needed
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     logger.info("Output path: %s", output_path)
     logger.info(
         "Conversion: %s -> %s",
-        source_fmt.value, target_fmt.value,
+        source_fmt.value,
+        target_fmt.value,
         extra={
             "source_format": source_fmt.value,
             "target_format": target_fmt.value,
@@ -101,27 +106,51 @@ def convert(
         if not be.is_available():
             logger.warning(
                 "%s Backend '%s' not available (not installed)",
-                progress, backend_name,
+                progress,
+                backend_name,
             )
             errors.append(f"{backend_name}: not installed")
             if not fallback:
                 break
             continue
 
-        logger.info("%s Trying backend: %s (%s)", progress, backend_name, be.version_info())
-        result = be.convert(input_path, output_path, source_fmt.value, target_fmt.value)
+        # --- Estimate time and optionally show progress ---
+        eta = estimate_for_file(
+            backend_name, source_fmt.value, target_fmt.value, input_path
+        )
+        logger.info(
+            "%s Trying backend: %s (%s) ETA: %s",
+            progress,
+            backend_name,
+            be.version_info(),
+            format_eta(eta),
+        )
+
+        result = _run_with_progress(
+            be,
+            input_path,
+            output_path,
+            source_fmt.value,
+            target_fmt.value,
+            eta_seconds=eta,
+            show_progress=show_progress,
+        )
 
         if result.success:
             logger.info(
                 "Conversion SUCCESS via %s in %.2fs",
-                backend_name, result.duration_seconds,
+                backend_name,
+                result.duration_seconds,
             )
             result.duration_seconds = time.time() - overall_start
+            result.estimated_seconds = eta
             return result
 
         logger.warning(
             "%s Backend '%s' failed: %s",
-            progress, backend_name, result.error_message,
+            progress,
+            backend_name,
+            result.error_message,
         )
         errors.append(f"{backend_name}: {result.error_message}")
 
@@ -134,7 +163,10 @@ def convert(
     error_summary = "; ".join(errors) if errors else "No backends available"
     logger.error(
         "Conversion FAILED: all %d backends exhausted for %s -> %s. Errors: %s",
-        len(chain), source_fmt.value, target_fmt.value, error_summary,
+        len(chain),
+        source_fmt.value,
+        target_fmt.value,
+        error_summary,
     )
 
     return ConversionResult(
@@ -148,6 +180,18 @@ def convert(
     )
 
 
+def _run_with_progress(be, input_path, output_path, src_fmt, tgt_fmt, eta_seconds, show_progress):
+    """Run a backend conversion, optionally wrapped in a progress bar."""
+    if show_progress:
+        from .utils.progress import ConversionProgress
+
+        desc = f"{src_fmt} -> {tgt_fmt}"
+        with ConversionProgress(desc, be.name, eta_seconds=eta_seconds):
+            return be.convert(input_path, output_path, src_fmt, tgt_fmt)
+    else:
+        return be.convert(input_path, output_path, src_fmt, tgt_fmt)
+
+
 def _resolve_target_format(
     output_path: str | Path | None,
     target_format: str | None,
@@ -158,6 +202,7 @@ def _resolve_target_format(
 
     if output_path:
         from .utils.formats import EXTENSION_MAP
+
         ext = Path(output_path).suffix.lower()
         fmt = EXTENSION_MAP.get(ext)
         if fmt:
