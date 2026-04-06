@@ -247,6 +247,39 @@ uv run dss input.pdf output.md -v      # INFO level
 uv run dss input.pdf output.md -vv     # DEBUG level
 ```
 
+### Batch Convert A Directory
+
+Convert all PDFs in a directory to Markdown:
+
+```bash
+for f in ~/Downloads/papers/*.pdf; do uv run dss "$f" "${f%.pdf}.md"; done
+```
+
+Or from within the target directory:
+
+```bash
+cd ~/Downloads/papers
+for f in *.pdf; do uv run dss "$f" "${f%.pdf}.md"; done
+```
+
+Each file is converted individually — `report.pdf` becomes `report.md` in the same directory. The pattern works for any format pair by changing the extensions:
+
+```bash
+for f in ~/Documents/*.docx; do uv run dss "$f" "${f%.docx}.html"; done
+```
+
+If `dss` is not on your `PATH` (e.g. you are running from outside the project directory), point `uv` at the project root:
+
+```bash
+for f in *.pdf; do uv run --project ~/code/doc-shape-shifter dss "$f" "${f%.pdf}.md"; done
+```
+
+Add `-v` for verbose output showing which backend handles each file:
+
+```bash
+for f in *.pdf; do uv run dss "$f" "${f%.pdf}.md" -v; done
+```
+
 ## How To Interpret Output
 
 ### `--list-backends`
