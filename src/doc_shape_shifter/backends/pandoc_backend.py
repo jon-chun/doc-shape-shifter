@@ -23,6 +23,20 @@ _PANDOC_FORMATS = {
     "rtf": "rtf",
 }
 
+# Pandoc defaults to pdflatex for PDF output, but pdflatex is a legacy 8-bit
+# engine that cannot typeset arbitrary Unicode (e.g. U+2194 ↔). Prefer a
+# Unicode-native engine when producing PDFs, falling back to pandoc's default
+# only if none is installed. Order: most common/fastest first.
+_PDF_ENGINE_PREFERENCE = ("xelatex", "lualatex", "tectonic")
+
+
+def _select_pdf_engine() -> str | None:
+    """Return the first available Unicode-aware PDF engine, or None."""
+    for engine in _PDF_ENGINE_PREFERENCE:
+        if shutil.which(engine):
+            return engine
+    return None
+
 
 class PandocBackend(BaseBackend):
     """Backend using Pandoc for broad format conversion."""
@@ -34,6 +48,7 @@ class PandocBackend(BaseBackend):
             return True
         try:
             import pypandoc  # noqa: F401
+
             return True
         except ImportError:
             return False
@@ -52,6 +67,7 @@ class PandocBackend(BaseBackend):
 
         try:
             import pypandoc
+
             return f"pypandoc {pypandoc.__version__}"
         except (ImportError, AttributeError):
             return "pandoc (not installed)"
@@ -66,7 +82,9 @@ class PandocBackend(BaseBackend):
         start = time.time()
         logger.info(
             "pandoc: converting %s -> %s (%s)",
-            source_format, target_format, input_path.name,
+            source_format,
+            target_format,
+            input_path.name,
         )
 
         pandoc_from = _PANDOC_FORMATS.get(source_format)
@@ -79,9 +97,12 @@ class PandocBackend(BaseBackend):
 
         if pandoc_to is None:
             return ConversionResult(
-                success=False, output_path=None, backend_name=self.name,
+                success=False,
+                output_path=None,
+                backend_name=self.name,
                 duration_seconds=time.time() - start,
-                source_format=source_format, target_format=target_format,
+                source_format=source_format,
+                target_format=target_format,
                 error_message=(
                     f"Pandoc format mapping missing: "
                     f"{source_format}={pandoc_from}, {target_format}={pandoc_to}"
@@ -98,7 +119,8 @@ class PandocBackend(BaseBackend):
 
             logger.info(
                 "pandoc: conversion complete in %.2fs (%s bytes)",
-                duration, size,
+                duration,
+                size,
                 extra={"duration_s": duration, "file_size_bytes": size},
             )
 
@@ -116,24 +138,35 @@ class PandocBackend(BaseBackend):
             duration = time.time() - start
             logger.error("pandoc: conversion failed: %s", e, exc_info=True)
             return ConversionResult(
-                success=False, output_path=None, backend_name=self.name,
+                success=False,
+                output_path=None,
+                backend_name=self.name,
                 duration_seconds=duration,
-                source_format=source_format, target_format=target_format,
+                source_format=source_format,
+                target_format=target_format,
                 error_message=str(e),
             )
 
     def _try_pypandoc(
-        self, input_path: Path, output_path: Path,
-        pandoc_from: str | None, pandoc_to: str,
+        self,
+        input_path: Path,
+        output_path: Path,
+        pandoc_from: str | None,
+        pandoc_to: str,
     ) -> bool:
         """Attempt conversion using pypandoc. Returns True if successful."""
         try:
             import pypandoc
+
             kwargs = {
                 "outputfile": str(output_path),
             }
             if pandoc_from:
                 kwargs["format"] = pandoc_from
+            if pandoc_to == "pdf":
+                engine = _select_pdf_engine()
+                if engine:
+                    kwargs["extra_args"] = [f"--pdf-engine={engine}"]
             pypandoc.convert_file(
                 str(input_path),
                 pandoc_to,
@@ -145,26 +178,55 @@ class PandocBackend(BaseBackend):
             logger.debug("pandoc: pypandoc not installed, falling back to CLI")
             return False
 
-    def _run_cli(
-        self, input_path: Path, output_path: Path,
-        pandoc_from: str | None, pandoc_to: str,
-    ) -> None:
-        """Run pandoc as a subprocess."""
+    @staticmethod
+    def _build_cli_cmd(
+        input_path: Path,
+        output_path: Path,
+        pandoc_from: str | None,
+        pandoc_to: str,
+        pdf_engine: str | None = None,
+    ) -> list[str]:
+        """Build the pandoc CLI argument list.
+
+        Pure/deterministic so it can be unit-tested. ``--pdf-engine`` is only
+        added for PDF output, and only when an engine was selected.
+        """
         cmd = [
             "pandoc",
             str(input_path),
         ]
         if pandoc_from:
             cmd.extend(["-f", pandoc_from])
-        cmd.extend([
-            "-t", pandoc_to,
-            "-o", str(output_path),
-            "--standalone",
-        ])
+        cmd.extend(
+            [
+                "-t",
+                pandoc_to,
+                "-o",
+                str(output_path),
+                "--standalone",
+            ]
+        )
+        if pandoc_to == "pdf" and pdf_engine:
+            cmd.append(f"--pdf-engine={pdf_engine}")
+        return cmd
+
+    def _run_cli(
+        self,
+        input_path: Path,
+        output_path: Path,
+        pandoc_from: str | None,
+        pandoc_to: str,
+    ) -> None:
+        """Run pandoc as a subprocess."""
+        pdf_engine = _select_pdf_engine() if pandoc_to == "pdf" else None
+        cmd = self._build_cli_cmd(input_path, output_path, pandoc_from, pandoc_to, pdf_engine)
         logger.debug("pandoc CLI: %s", " ".join(cmd))
 
         result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=120,
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=120,
         )
 
         if result.returncode != 0:

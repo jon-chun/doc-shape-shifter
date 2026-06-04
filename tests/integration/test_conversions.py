@@ -15,6 +15,7 @@ from doc_shape_shifter.converter import convert
 FIXTURES = Path(__file__).parent.parent / "fixtures"
 
 has_pandoc = shutil.which("pandoc") is not None
+has_pdf_engine = any(shutil.which(e) for e in ("pdflatex", "xelatex", "lualatex", "tectonic"))
 
 
 # ============================================================================
@@ -219,6 +220,32 @@ class TestPandocConversions:
     def test_html_to_latex(self, tmp_path):
         out = tmp_path / "out.tex"
         r = convert(FIXTURES / "sample.html", out, target_format="latex")
+        assert r.success, r.error_message
+        assert out.stat().st_size > 0
+
+
+@pytest.mark.skipif(
+    not (has_pandoc and has_pdf_engine),
+    reason="pandoc + a LaTeX PDF engine required",
+)
+class TestPandocPdfConversions:
+    """Regression: md -> pdf with Unicode must not fall over on pdflatex."""
+
+    def test_md_to_pdf(self, tmp_path):
+        src = tmp_path / "in.md"
+        src.write_text("# Title\n\nA plain paragraph.\n", encoding="utf-8")
+        out = tmp_path / "out.pdf"
+        r = convert(src, out, target_format="pdf")
+        assert r.success, r.error_message
+        assert out.stat().st_size > 0
+
+    def test_md_to_pdf_with_unicode(self, tmp_path):
+        # U+2194 (LEFT RIGHT ARROW) is rejected by pdflatex; xelatex/lualatex
+        # produce a PDF (the glyph may be blank if the font lacks it).
+        src = tmp_path / "uni.md"
+        src.write_text("Their notation ↔ links the two ideas.\n", encoding="utf-8")
+        out = tmp_path / "uni.pdf"
+        r = convert(src, out, target_format="pdf")
         assert r.success, r.error_message
         assert out.stat().st_size > 0
 

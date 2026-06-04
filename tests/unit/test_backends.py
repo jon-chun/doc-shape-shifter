@@ -39,6 +39,7 @@ class TestPandocBackendFormats:
 
     def test_plain_text_not_used_as_input_format(self):
         from doc_shape_shifter.backends.pandoc_backend import _PANDOC_FORMATS, PandocBackend
+
         # "plain" should exist in the format map (for output)
         assert _PANDOC_FORMATS.get("txt") == "plain"
         # But PandocBackend.convert should handle it gracefully as input
@@ -46,6 +47,7 @@ class TestPandocBackendFormats:
         if be.is_available():
             import tempfile
             from pathlib import Path
+
             with tempfile.TemporaryDirectory() as tmp:
                 inp = Path(tmp) / "test.txt"
                 inp.write_text("Hello world")
@@ -54,18 +56,74 @@ class TestPandocBackendFormats:
                 assert r.success, f"Pandoc txt->html should work, got: {r.error_message}"
 
 
+class TestPandocPdfEngine:
+    """Regression: pandoc must use a Unicode-aware PDF engine for PDF output.
+
+    The default engine (pdflatex) cannot typeset arbitrary Unicode characters
+    (e.g. U+2194 LEFT RIGHT ARROW), so md -> pdf failed. xelatex/lualatex/
+    tectonic handle Unicode natively.
+    """
+
+    def test_build_cmd_adds_pdf_engine_for_pdf(self):
+        from pathlib import Path
+
+        from doc_shape_shifter.backends.pandoc_backend import PandocBackend
+
+        cmd = PandocBackend._build_cli_cmd(
+            Path("in.md"), Path("out.pdf"), "markdown", "pdf", pdf_engine="xelatex"
+        )
+        assert "--pdf-engine=xelatex" in cmd
+
+    def test_build_cmd_no_pdf_engine_for_non_pdf(self):
+        from pathlib import Path
+
+        from doc_shape_shifter.backends.pandoc_backend import PandocBackend
+
+        cmd = PandocBackend._build_cli_cmd(
+            Path("in.md"), Path("out.html"), "markdown", "html", pdf_engine="xelatex"
+        )
+        assert not any(c.startswith("--pdf-engine") for c in cmd)
+
+    def test_select_pdf_engine_prefers_unicode_engine(self, monkeypatch):
+        import doc_shape_shifter.backends.pandoc_backend as pb
+
+        # Only xelatex + lualatex present -> must pick a Unicode-aware one, never pdflatex.
+        monkeypatch.setattr(
+            pb.shutil,
+            "which",
+            lambda name: f"/usr/bin/{name}" if name in {"xelatex", "lualatex"} else None,
+        )
+        engine = pb._select_pdf_engine()
+        assert engine in {"xelatex", "lualatex", "tectonic"}
+        assert engine != "pdflatex"
+
+    def test_select_pdf_engine_none_when_unavailable(self, monkeypatch):
+        import doc_shape_shifter.backends.pandoc_backend as pb
+
+        monkeypatch.setattr(pb.shutil, "which", lambda name: None)
+        assert pb._select_pdf_engine() is None
+
+
 class TestConversionResult:
     def test_str_success(self):
         r = ConversionResult(
-            success=True, output_path=None, backend_name="test",
-            duration_seconds=1.5, source_format="md", target_format="txt",
+            success=True,
+            output_path=None,
+            backend_name="test",
+            duration_seconds=1.5,
+            source_format="md",
+            target_format="txt",
         )
         assert "OK" in str(r)
 
     def test_str_failure(self):
         r = ConversionResult(
-            success=False, output_path=None, backend_name="test",
-            duration_seconds=0.1, source_format="md", target_format="txt",
+            success=False,
+            output_path=None,
+            backend_name="test",
+            duration_seconds=0.1,
+            source_format="md",
+            target_format="txt",
             error_message="broke",
         )
         assert "FAILED" in str(r)
