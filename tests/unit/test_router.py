@@ -61,3 +61,20 @@ class TestListConversions:
             assert isinstance(tgt, str)
             assert isinstance(backends, list)
             assert len(backends) > 0
+
+
+def test_image_to_pdf_routes_to_ocr():
+    assert get_backend_chain(DocFormat.IMAGE, DocFormat.PDF) == ["ocr"]
+
+
+def test_image_to_markdown_routes_to_ocr():
+    assert get_backend_chain(DocFormat.IMAGE, DocFormat.MARKDOWN) == ["ocr"]
+
+
+def test_image_to_text_routes_to_ocr():
+    assert get_backend_chain(DocFormat.IMAGE, DocFormat.PLAIN_TEXT) == ["ocr"]
+
+
+def test_image_to_docx_unsupported():
+    with pytest.raises(UnsupportedConversionError):
+        get_backend_chain(DocFormat.IMAGE, DocFormat.DOCX)

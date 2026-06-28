@@ -106,6 +106,11 @@ CONVERSION_MATRIX: dict[tuple[DocFormat, DocFormat], list[str]] = {
     (DocFormat.RTF, DocFormat.PLAIN_TEXT):   ["markitdown", "pandoc"],
     (DocFormat.RTF, DocFormat.HTML):        ["pandoc"],
     (DocFormat.RTF, DocFormat.JSON):        ["markitdown"],
+
+    # --- Image as source (OCR) ---
+    (DocFormat.IMAGE, DocFormat.PDF):        ["ocr"],
+    (DocFormat.IMAGE, DocFormat.MARKDOWN):   ["ocr"],
+    (DocFormat.IMAGE, DocFormat.PLAIN_TEXT): ["ocr"],
 }
 
 
