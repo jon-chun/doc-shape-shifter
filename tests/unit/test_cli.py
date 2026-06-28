@@ -18,6 +18,10 @@ def test_list_formats_includes_image_pairs():
     assert "image" in result.output
 
 
-def test_invalid_mode_rejected():
-    result = CliRunner().invoke(main, ["x.png", "y.pdf", "--mode", "bogus"])
+def test_invalid_mode_rejected(tmp_path):
+    src = tmp_path / "x.png"
+    src.write_bytes(b"\x89PNG\r\n\x1a\n")
+    result = CliRunner().invoke(main, [str(src), str(tmp_path / "y.pdf"), "--mode", "bogus"])
     assert result.exit_code != 0
+    # Must fail specifically because of the invalid --mode choice, not file-not-found.
+    assert "bogus" in result.output or "Invalid value" in result.output
