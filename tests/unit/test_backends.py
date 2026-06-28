@@ -192,3 +192,24 @@ def test_ocr_backend_unknown_engine_fails(tmp_path):
     )
     assert result.success is False
     assert "bogus" in (result.error_message or "")
+
+
+def test_ocr_backend_is_available_raising_engine_is_clean_failure(tmp_path, monkeypatch):
+    """Regression: a raising is_available() must not escape convert() as an exception."""
+
+    class _Boom:
+        def is_available(self) -> bool:
+            raise RuntimeError("boom")
+
+    # get_engine is imported lazily inside convert via
+    # `from ..pipelines.ocr.engines import get_engine`.
+    # Patch it at the source module so the lazy import picks up the stub.
+    import doc_shape_shifter.pipelines.ocr.engines as eng_mod
+
+    monkeypatch.setattr(eng_mod, "get_engine", lambda name: _Boom())
+
+    img = tmp_path / "x.png"
+    img.write_bytes(b"\x89PNG\r\n\x1a\n")
+    result = OCRBackend().convert(img, tmp_path / "x.txt", "image", "txt")
+    assert result.success is False
+    assert result.error_message  # non-empty — "boom" propagates as the message

@@ -75,18 +75,18 @@ class OCRBackend(BaseBackend):
         except ValueError as e:
             return self._fail(str(e), start, source_format, target_format)
 
-        if not engine.is_available():
-            hint = (
-                "install tesseract-ocr + pip install 'doc-shape-shifter[ocr]'"
-                if opts.ocr_engine == "tesseract"
-                else "pip install 'doc-shape-shifter[ocr-ml]'"
-            )
-            return self._fail(
-                f"OCR engine '{opts.ocr_engine}' not available ({hint})",
-                start, source_format, target_format,
-            )
-
         try:
+            if not engine.is_available():
+                hint = (
+                    "install tesseract-ocr + pip install 'doc-shape-shifter[ocr]'"
+                    if opts.ocr_engine == "tesseract"
+                    else "pip install 'doc-shape-shifter[ocr-ml]'"
+                )
+                return self._fail(
+                    f"OCR engine '{opts.ocr_engine}' not available ({hint})",
+                    start, source_format, target_format,
+                )
+
             tiles = slice_image(input_path, opts.page_size, opts.dpi)
             warnings: list[str] = []
 
