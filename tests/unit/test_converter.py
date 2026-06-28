@@ -148,3 +148,15 @@ class TestConversionResult:
         assert result.duration_seconds > 0
         assert result.file_size_bytes is not None
         assert result.file_size_bytes > 0
+
+
+class TestSourceOnlyTarget:
+    def test_convert_source_only_target_without_output_path_fails_cleanly(self, tmp_path):
+        # IMAGE is a source-only format (no default output extension). Requesting it
+        # as a target with no output path must return a clean failure, not raise.
+        src = tmp_path / "doc.txt"
+        src.write_text("hello", encoding="utf-8")
+        result = convert(src, target_format="png")  # "png" resolves to DocFormat.IMAGE
+        assert result.success is False
+        assert result.error_message
+        assert "image" in result.error_message.lower()

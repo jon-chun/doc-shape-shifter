@@ -51,6 +51,22 @@ def convert(
 
     # --- Step 3: Resolve output path ---
     if output_path is None:
+        if target_fmt not in FORMAT_EXTENSION:
+            duration = time.time() - overall_start
+            msg = (
+                f"{target_fmt.value} is not a valid output format "
+                f"(no default file extension); specify an output file explicitly."
+            )
+            logger.error(msg)
+            return ConversionResult(
+                success=False,
+                output_path=None,
+                backend_name="none",
+                duration_seconds=duration,
+                source_format=source_fmt.value,
+                target_format=target_fmt.value,
+                error_message=msg,
+            )
         ext = FORMAT_EXTENSION[target_fmt]
         output_path = input_path.with_suffix(ext)
     output_path = Path(output_path)

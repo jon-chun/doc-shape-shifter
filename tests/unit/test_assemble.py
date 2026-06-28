@@ -48,3 +48,27 @@ def test_merge_pdf_pages_raises_on_invalid_blob(tmp_path):
     # pymupdf raises FileDataError when the stream is not a valid PDF.
     with pytest.raises(pymupdf.FileDataError):
         merge_pdf_pages([b"not a pdf at all"], tmp_path / "bad.pdf")
+
+
+def test_sandwich_page_pdf_embeds_image_and_text(tmp_path):
+    from PIL import Image
+
+    from doc_shape_shifter.pipelines.ocr.assemble import sandwich_page_pdf
+    from doc_shape_shifter.pipelines.ocr.engines.base import OCRPage, OCRWord
+
+    tile = Image.new("RGB", (200, 80), "white")
+    page = OCRPage(
+        text="hello world",
+        words=[
+            OCRWord(text="hello", bbox=(10, 10, 60, 40)),
+            OCRWord(text="world", bbox=(70, 10, 120, 40)),
+        ],
+    )
+    blob = sandwich_page_pdf(tile, page)
+    doc = pymupdf.open(stream=blob, filetype="pdf")
+    try:
+        assert doc.page_count == 1
+        text = doc[0].get_text()
+    finally:
+        doc.close()
+    assert "hello" in text and "world" in text
