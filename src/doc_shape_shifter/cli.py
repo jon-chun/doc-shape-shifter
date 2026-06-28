@@ -20,6 +20,19 @@ console = Console(stderr=True)
               help="Don't try alternate backends on failure")
 @click.option("--no-progress", is_flag=True, default=False,
               help="Disable progress bar during conversion")
+@click.option("--mode", type=click.Choice(["searchable", "reflow"]),
+              default="searchable", show_default=True,
+              help="OCR PDF mode for image sources: searchable (image+text layer) or reflow.")
+@click.option("--ocr-engine", type=click.Choice(["tesseract", "surya"]),
+              default="tesseract", show_default=True,
+              help="OCR engine for image sources.")
+@click.option("--page-size", type=click.Choice(["letter", "a4", "continuous"]),
+              default="letter", show_default=True,
+              help="Output page size for OCR PDFs.")
+@click.option("--dpi", type=int, default=200, show_default=True,
+              help="Rendering DPI used to tile image sources.")
+@click.option("--ocr-lang", default="eng", show_default=True,
+              help="OCR language(s), e.g. 'eng' or 'eng+fra'.")
 @click.option("--list-backends", is_flag=True, default=False,
               help="List all backends with availability status")
 @click.option("--list-formats", is_flag=True, default=False,
@@ -34,6 +47,11 @@ def main(
     backend: str | None,
     no_fallback: bool,
     no_progress: bool,
+    mode: str,
+    ocr_engine: str,
+    page_size: str,
+    dpi: int,
+    ocr_lang: str,
     list_backends: bool,
     list_formats: bool,
     verbose: int,
@@ -79,9 +97,18 @@ def main(
         sys.exit(1)
 
     # --- Execute conversion ---
+    from .backends.base import ConversionOptions
     from .converter import convert
 
     console.print(f"[bold]Converting:[/] {input_file}", highlight=False)
+
+    options = ConversionOptions(
+        mode=mode,
+        ocr_engine=ocr_engine,
+        page_size=page_size,
+        dpi=dpi,
+        ocr_lang=ocr_lang,
+    )
 
     result = convert(
         input_path=input_file,
@@ -90,6 +117,7 @@ def main(
         backend=backend,
         fallback=not no_fallback,
         show_progress=not no_progress,
+        options=options,
     )
 
     if result.success:
