@@ -25,3 +25,13 @@ def test_tesseract_availability_requires_binary(monkeypatch):
 
     monkeypatch.setattr(mod.shutil, "which", lambda _: None)
     assert TesseractEngine().is_available() is False
+
+
+def test_surya_engine_selectable_and_gated():
+    from doc_shape_shifter.pipelines.ocr.engines import get_engine
+    from doc_shape_shifter.pipelines.ocr.engines.surya import SuryaEngine
+
+    eng = get_engine("surya")
+    assert isinstance(eng, SuryaEngine)
+    # is_available reflects whether surya is importable; must not raise either way.
+    assert isinstance(eng.is_available(), bool)
