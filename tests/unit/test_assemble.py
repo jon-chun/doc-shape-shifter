@@ -10,11 +10,12 @@ from doc_shape_shifter.pipelines.ocr.assemble import (  # noqa: E402
 
 def _one_page_pdf_bytes(text="page"):
     doc = pymupdf.open()
-    page = doc.new_page(width=200, height=200)
-    page.insert_text((20, 40), text)
-    blob = doc.tobytes()
-    doc.close()
-    return blob
+    try:
+        page = doc.new_page(width=200, height=200)
+        page.insert_text((20, 40), text)
+        return doc.tobytes()
+    finally:
+        doc.close()
 
 
 def test_merge_pdf_pages_concatenates(tmp_path):
@@ -41,3 +42,9 @@ def test_render_text_pdf_paginates_long_text(tmp_path):
     doc = pymupdf.open(out)
     assert doc.page_count > 1
     doc.close()
+
+
+def test_merge_pdf_pages_raises_on_invalid_blob(tmp_path):
+    # pymupdf raises FileDataError when the stream is not a valid PDF.
+    with pytest.raises(pymupdf.FileDataError):
+        merge_pdf_pages([b"not a pdf at all"], tmp_path / "bad.pdf")

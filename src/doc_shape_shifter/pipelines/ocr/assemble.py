@@ -30,8 +30,10 @@ def merge_pdf_pages(pdf_blobs: list[bytes], output_path: Path) -> None:
     try:
         for blob in pdf_blobs:
             src = pymupdf.open(stream=blob, filetype="pdf")
-            out.insert_pdf(src)
-            src.close()
+            try:
+                out.insert_pdf(src)
+            finally:
+                src.close()
         out.save(str(output_path))
     finally:
         out.close()
@@ -64,12 +66,14 @@ def render_text_pdf(text: str, output_path: Path, page_size: str = "letter") -> 
     where = pymupdf.Rect(_MARGIN_PT, _MARGIN_PT, w - _MARGIN_PT, h - _MARGIN_PT)
 
     more = 1
-    while more:
-        dev = writer.begin_page(mediabox)
-        more, _ = story.place(where)
-        story.draw(dev)
-        writer.end_page()
-    writer.close()
+    try:
+        while more:
+            dev = writer.begin_page(mediabox)
+            more, _ = story.place(where)
+            story.draw(dev)
+            writer.end_page()
+    finally:
+        writer.close()
 
 
 def sandwich_page_pdf(tile: PILImage, ocr_page: OCRPage) -> bytes:
