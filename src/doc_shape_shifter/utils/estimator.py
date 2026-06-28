@@ -92,6 +92,10 @@ _BASE_TIMES: dict[tuple[str, str, str], float] = {
     ("tabula", "pdf", "json"): 3.0,
     # mathpix — network API, very slow
     ("mathpix", "pdf", "latex"): 30.0,
+    # ocr — tesseract per-tile OCR, image source
+    ("ocr", "image", "pdf"): 4.0,
+    ("ocr", "image", "md"): 4.0,
+    ("ocr", "image", "txt"): 4.0,
 }
 
 # Fallback base times by backend when no specific triple exists
@@ -103,6 +107,7 @@ _BACKEND_DEFAULTS: dict[str, float] = {
     "markitdown": 0.5,
     "tabula": 3.0,
     "mathpix": 30.0,
+    "ocr": 4.0,
 }
 
 # Size scaling: seconds per MB beyond the base 10 KB reference.
@@ -115,6 +120,7 @@ _SIZE_SCALE_PER_MB: dict[str, float] = {
     "markitdown": 0.5,
     "tabula": 2.0,
     "mathpix": 10.0,
+    "ocr": 6.0,
 }
 
 _DEFAULT_SCALE_PER_MB = 1.0

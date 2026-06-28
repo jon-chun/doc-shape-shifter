@@ -155,3 +155,40 @@ def test_existing_backend_accepts_options_kwarg(tmp_path):
     result = be.convert(src, out, "md", "txt", options=ConversionOptions())
     assert result.success
     assert out.exists()
+
+
+# ---------------------------------------------------------------------------
+# Task 8: OCRBackend tests
+# ---------------------------------------------------------------------------
+
+from doc_shape_shifter.backends import get_backend, list_backends  # noqa: E402, F811
+from doc_shape_shifter.backends.ocr_backend import OCRBackend  # noqa: E402
+
+
+def test_ocr_backend_registered():
+    names = [name for name, _ in list_backends()]
+    assert "ocr" in names
+    assert isinstance(get_backend("ocr"), OCRBackend)
+
+
+def test_ocr_backend_rejects_unsupported_target(tmp_path):
+    img = tmp_path / "x.png"
+    img.write_bytes(b"\x89PNG\r\n\x1a\n")
+    be = OCRBackend()
+    result = be.convert(img, tmp_path / "x.docx", "image", "docx")
+    assert result.success is False
+    assert "docx" in (result.error_message or "")
+
+
+def test_ocr_backend_unknown_engine_fails(tmp_path):
+    from doc_shape_shifter.backends.base import ConversionOptions
+
+    img = tmp_path / "x.png"
+    img.write_bytes(b"\x89PNG\r\n\x1a\n")
+    be = OCRBackend()
+    result = be.convert(
+        img, tmp_path / "x.txt", "image", "txt",
+        options=ConversionOptions(ocr_engine="bogus"),
+    )
+    assert result.success is False
+    assert "bogus" in (result.error_message or "")

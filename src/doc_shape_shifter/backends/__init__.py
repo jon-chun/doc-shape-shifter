@@ -18,13 +18,14 @@ def _register_backends() -> None:
     from .docling_backend import DoclingBackend
     from .markitdown_backend import MarkItDownBackend
     from .mathpix_backend import MathpixBackend
+    from .ocr_backend import OCRBackend
     from .pandoc_backend import PandocBackend
     from .pymupdf_backend import PyMuPDFBackend
     from .tabula_backend import TabulaBackend
 
     for cls in [
         BuiltinBackend, PyMuPDFBackend, PandocBackend, DoclingBackend,
-        MarkItDownBackend, TabulaBackend, MathpixBackend,
+        MarkItDownBackend, TabulaBackend, MathpixBackend, OCRBackend,
     ]:
         _BACKEND_CLASSES[cls.name] = cls
 
