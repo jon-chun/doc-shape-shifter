@@ -16,6 +16,7 @@ class DocFormat(str, Enum):
     LATEX = "latex"
     EPUB = "epub"
     RTF = "rtf"
+    IMAGE = "image"
 
     def __str__(self) -> str:
         return self.value
@@ -36,6 +37,13 @@ EXTENSION_MAP: dict[str, DocFormat] = {
     ".latex": DocFormat.LATEX,
     ".epub": DocFormat.EPUB,
     ".rtf": DocFormat.RTF,
+    ".png": DocFormat.IMAGE,
+    ".jpg": DocFormat.IMAGE,
+    ".jpeg": DocFormat.IMAGE,
+    ".webp": DocFormat.IMAGE,
+    ".tif": DocFormat.IMAGE,
+    ".tiff": DocFormat.IMAGE,
+    ".bmp": DocFormat.IMAGE,
 }
 
 FORMAT_EXTENSION: dict[DocFormat, str] = {
@@ -64,6 +72,12 @@ MIME_MAP: dict[str, DocFormat] = {
     "application/epub+zip": DocFormat.EPUB,
     "text/rtf": DocFormat.RTF,
     "application/rtf": DocFormat.RTF,
+    "image/png": DocFormat.IMAGE,
+    "image/jpeg": DocFormat.IMAGE,
+    "image/webp": DocFormat.IMAGE,
+    "image/tiff": DocFormat.IMAGE,
+    "image/bmp": DocFormat.IMAGE,
+    "image/x-ms-bmp": DocFormat.IMAGE,
 }
 
 PANDOC_FORMAT_MAP: dict[DocFormat, str] = {
