@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from doc_shape_shifter.detector import UnsupportedFormatError, detect_format
+from doc_shape_shifter.detector import UnsupportedFormatError, _detect_by_heuristic, detect_format
 from doc_shape_shifter.utils.formats import DocFormat
 
 
@@ -100,3 +100,33 @@ class TestEdgeCases:
         f.write_bytes(b"\x00\x01\x02\x03")
         with pytest.raises(UnsupportedFormatError):
             detect_format(f)
+
+
+def test_heuristic_detects_png(tmp_path):
+    p = tmp_path / "capture.bin"  # non-image extension forces heuristic path
+    p.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 64)
+    assert _detect_by_heuristic(p) == DocFormat.IMAGE
+
+
+def test_heuristic_detects_jpeg(tmp_path):
+    p = tmp_path / "capture.bin"
+    p.write_bytes(b"\xff\xd8\xff\xe0" + b"\x00" * 64)
+    assert _detect_by_heuristic(p) == DocFormat.IMAGE
+
+
+def test_heuristic_detects_bmp(tmp_path):
+    p = tmp_path / "capture.bin"
+    p.write_bytes(b"BM" + b"\x00" * 64)
+    assert _detect_by_heuristic(p) == DocFormat.IMAGE
+
+
+def test_heuristic_detects_webp(tmp_path):
+    p = tmp_path / "capture.bin"
+    p.write_bytes(b"RIFF\x00\x00\x00\x00WEBP" + b"\x00" * 64)
+    assert _detect_by_heuristic(p) == DocFormat.IMAGE
+
+
+def test_detect_png_by_extension(tmp_path):
+    p = tmp_path / "capture.png"
+    p.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 64)
+    assert detect_format(p) == DocFormat.IMAGE

@@ -55,6 +55,26 @@ def _detect_by_heuristic(file_path: Path) -> DocFormat | None:
         with open(file_path, "rb") as f:
             header = f.read(4096)
 
+        if header.startswith(b"\x89PNG\r\n\x1a\n"):
+            logger.debug("Heuristic: PNG header detected")
+            return DocFormat.IMAGE
+
+        if header[:3] == b"\xff\xd8\xff":
+            logger.debug("Heuristic: JPEG header detected")
+            return DocFormat.IMAGE
+
+        if header[:2] == b"BM":
+            logger.debug("Heuristic: BMP header detected")
+            return DocFormat.IMAGE
+
+        if header[:4] in (b"II*\x00", b"MM\x00*"):
+            logger.debug("Heuristic: TIFF header detected")
+            return DocFormat.IMAGE
+
+        if header[:4] == b"RIFF" and header[8:12] == b"WEBP":
+            logger.debug("Heuristic: WEBP header detected")
+            return DocFormat.IMAGE
+
         if header.startswith(b"%PDF-"):
             logger.debug("Heuristic: PDF header detected")
             return DocFormat.PDF
