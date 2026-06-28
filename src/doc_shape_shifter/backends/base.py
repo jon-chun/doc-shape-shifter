@@ -28,6 +28,20 @@ class ConversionResult:
         )
 
 
+@dataclass
+class ConversionOptions:
+    """Optional, backend-specific knobs threaded from CLI/API to a backend.
+
+    Only the OCR backend reads these today; other backends accept and ignore them.
+    """
+
+    mode: str = "searchable"        # "searchable" | "reflow" (image -> pdf)
+    ocr_engine: str = "tesseract"   # "tesseract" | "surya"
+    page_size: str = "letter"       # "letter" | "a4" | "continuous"
+    dpi: int = 200
+    ocr_lang: str = "eng"           # e.g. "eng" or "eng+fra"
+
+
 class BaseBackend(ABC):
     """Abstract base class that all conversion backends must implement."""
 
@@ -44,6 +58,7 @@ class BaseBackend(ABC):
         output_path: Path,
         source_format: str,
         target_format: str,
+        options: "ConversionOptions | None" = None,
     ) -> ConversionResult:
         """Execute a format conversion."""
 

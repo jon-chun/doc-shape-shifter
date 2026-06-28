@@ -34,6 +34,7 @@ class MarkItDownBackend(BaseBackend):
         output_path: Path,
         source_format: str,
         target_format: str,
+        options=None,
     ) -> ConversionResult:
         start = time.time()
         logger.info(

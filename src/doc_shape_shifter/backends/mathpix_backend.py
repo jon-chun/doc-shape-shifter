@@ -38,6 +38,7 @@ class MathpixBackend(BaseBackend):
         output_path: Path,
         source_format: str,
         target_format: str,
+        options=None,  # noqa: A002 (shadows builtin; parameter accepted and ignored)
     ) -> ConversionResult:
         start = time.time()
         logger.info(

@@ -127,3 +127,31 @@ class TestConversionResult:
             error_message="broke",
         )
         assert "FAILED" in str(r)
+
+
+# ---------------------------------------------------------------------------
+# Task 3: ConversionOptions tests
+# ---------------------------------------------------------------------------
+
+from doc_shape_shifter.backends.base import ConversionOptions  # noqa: E402
+from doc_shape_shifter.backends.builtin_backend import BuiltinBackend  # noqa: E402
+
+
+def test_conversion_options_defaults():
+    o = ConversionOptions()
+    assert o.mode == "searchable"
+    assert o.ocr_engine == "tesseract"
+    assert o.page_size == "letter"
+    assert o.dpi == 200
+    assert o.ocr_lang == "eng"
+
+
+def test_existing_backend_accepts_options_kwarg(tmp_path):
+    src = tmp_path / "a.md"
+    src.write_text("# Title\n\nhello", encoding="utf-8")
+    out = tmp_path / "a.txt"
+    be = BuiltinBackend()
+    # Passing options must not raise and must still work.
+    result = be.convert(src, out, "md", "txt", options=ConversionOptions())
+    assert result.success
+    assert out.exists()

@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 
 from .backends import get_backend
-from .backends.base import ConversionResult
+from .backends.base import ConversionOptions, ConversionResult
 from .detector import detect_format
 from .router import UnsupportedConversionError, get_backend_chain
 from .utils.estimator import estimate_for_file, format_eta
@@ -23,6 +23,7 @@ def convert(
     backend: str | None = None,
     fallback: bool = True,
     show_progress: bool = False,
+    options: ConversionOptions | None = None,
 ) -> ConversionResult:
     """Convert a document from one format to another.
 
@@ -134,6 +135,7 @@ def convert(
             target_fmt.value,
             eta_seconds=eta,
             show_progress=show_progress,
+            options=options,
         )
 
         if result.success:
@@ -180,16 +182,18 @@ def convert(
     )
 
 
-def _run_with_progress(be, input_path, output_path, src_fmt, tgt_fmt, eta_seconds, show_progress):
+def _run_with_progress(
+    be, input_path, output_path, src_fmt, tgt_fmt, eta_seconds, show_progress, options=None
+):
     """Run a backend conversion, optionally wrapped in a progress bar."""
     if show_progress:
         from .utils.progress import ConversionProgress
 
         desc = f"{src_fmt} -> {tgt_fmt}"
         with ConversionProgress(desc, be.name, eta_seconds=eta_seconds):
-            return be.convert(input_path, output_path, src_fmt, tgt_fmt)
+            return be.convert(input_path, output_path, src_fmt, tgt_fmt, options=options)
     else:
-        return be.convert(input_path, output_path, src_fmt, tgt_fmt)
+        return be.convert(input_path, output_path, src_fmt, tgt_fmt, options=options)
 
 
 def _resolve_target_format(
