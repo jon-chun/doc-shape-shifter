@@ -59,6 +59,7 @@ Backend registry (`backends/__init__.py`) uses lazy singleton instantiation. Hea
 | markitdown | `markitdown_backend.py` | Multi-format -> md/txt/json |
 | tabula | `tabula_backend.py` | PDF table extraction -> csv/json (requires Java) |
 | mathpix | `mathpix_backend.py` | PDF/image -> LaTeX (commercial API) |
+| ocr | `ocr_backend.py` | Image (PNG/JPG/...) -> searchable/reflow PDF, md, txt via Tesseract (default) or Surya |
 
 ### Format System (`utils/formats.py`)
 
@@ -79,6 +80,8 @@ Backend registry (`backends/__init__.py`) uses lazy singleton instantiation. Hea
 ## System Dependencies
 
 Beyond Python packages: `pandoc` (for most non-builtin conversions), `java` (for tabula PDF table extraction). Optional: `python-magic`/`libmagic` (for MIME detection).
+
+For image OCR: `tesseract` (the `tesseract-ocr` binary). Optional: `surya-ocr` (`[ocr-ml]` extra) for higher accuracy.
 
 ## Adding a New Backend
 

@@ -280,6 +280,22 @@ Add `-v` for verbose output showing which backend handles each file:
 for f in *.pdf; do uv run dss "$f" "${f%.pdf}.md" -v; done
 ```
 
+### Image / Screenshot OCR (e.g. GoFullPage captures)
+
+Convert a full-page PNG screenshot into a text-based PDF, Markdown, or text:
+
+```bash
+dss capture.png out.pdf                 # searchable PDF (image + hidden text)
+dss capture.png out.pdf --mode reflow   # clean reflowed text PDF
+dss capture.png --to md                 # OCR -> Markdown
+dss capture.png --to txt                # OCR -> plain text
+dss capture.png out.pdf --page-size a4 --dpi 300 --ocr-lang eng+fra
+dss capture.png out.pdf --ocr-engine surya   # higher-accuracy engine (opt-in)
+```
+
+Requires the `tesseract` binary plus `pip install 'doc-shape-shifter[ocr]'`
+(or `[ocr-ml]` for the Surya engine).
+
 ## How To Interpret Output
 
 ### `--list-backends`

@@ -41,10 +41,11 @@ docling = ["docling>=2.82.0"]
 markitdown = ["markitdown[all]>=0.1.5"]
 tabula = ["tabula-py>=2.9"]
 mathpix = ["requests>=2.31"]
-ocr = ["surya-ocr>=0.6", "marker-pdf>=0.3.3"]
+ocr = ["pytesseract>=0.3.10", "Pillow>=10.0"]
+ocr-ml = ["surya-ocr>=0.6"]
 image = ["Pillow>=10.0", "opencv-python>=4.9"]
 all = [
-    "doc-shape-shifter[pandoc,docling,markitdown,tabula,mathpix]",
+    "doc-shape-shifter[pandoc,docling,markitdown,tabula,mathpix,ocr]",
 ]
 dev = [
     "pytest>=8.0",
